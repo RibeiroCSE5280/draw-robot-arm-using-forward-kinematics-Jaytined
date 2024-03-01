@@ -155,99 +155,23 @@ def forward_kinematics(Phi, L1, L2, L3, L4):
     return T_01, T_02, T_03, T_04, e
 
 def main():
+    # Set the limits of the graph x, y, and z ranges 
+    axes = Axes(xrange=(0,20), yrange=(-2,10), zrange=(0,6))
 
-	# Set the limits of the graph x, y, and z ranges 
-	axes = Axes(xrange=(0,20), yrange=(-2,10), zrange=(0,6))
+    # Joint angles and lengths of arm parts
+    L1, L2, L3, L4 = [5, 8, 3, 0]
+    Phi = np.array([-30, 50, 30, 0])
 
-	# Lengths of arm parts 
-	L1 = 5   # Length of link 1
-	L2 = 8   # Length of link 2
+    # Compute forward kinematics
+    T_01, T_02, T_03, T_04, e = forward_kinematics(Phi, L1, L2, L3, L4)
+    print(e)
 
-	# Joint angles 
-	phi1 = 30     # Rotation angle of part 1 in degrees
-	phi2 = -10    # Rotation angle of part 2 in degrees
-	phi3 = 0      # Rotation angle of the end-effector in degrees
-	
-	# Matrix of Frame 1 (written w.r.t. Frame 0, which is the previous frame) 
-	R_01 = RotationMatrix(phi1, axis_name = 'z')   # Rotation matrix
-	p1   = np.array([[3],[2], [0.0]])              # Frame's origin (w.r.t. previous frame)
-	t_01 = p1                                      # Translation vector
-	
-	T_01 = getLocalFrameMatrix(R_01, t_01)         # Matrix of Frame 1 w.r.t. Frame 0 (i.e., the world frame)
-	
-	# Create the coordinate frame mesh and transform
-	Frame1Arrows = createCoordinateFrameMesh()
-	
-	# Now, let's create a cylinder and add it to the local coordinate frame
-	link1_mesh = Cylinder(r=0.4, 
-	                      height=L1, 
-	                      pos = (L1/2,0,0),
-	                      c="yellow", 
-	                      alpha=.8, 
-	                      axis=(1,0,0)
-	                      )
-	
-	# Also create a sphere to show as an example of a joint
-	r1 = 0.4
-	sphere1 = Sphere(r=r1).pos(-r1,0,0).color("gray").alpha(.8)
+    # Testing
+    expected = np.array([18.47772028,  4.71432837,  0. ])
+    print(expected)
 
-	# Combine all parts into a single object 
-	Frame1 = Frame1Arrows + link1_mesh + sphere1
-
-	# Transform the part to position it at its correct location and orientation 
-	Frame1.apply_transform(T_01)  
-
-	
-	# Matrix of Frame 2 (written w.r.t. Frame 1, which is the previous frame) 	
-	R_12 = RotationMatrix(phi2, axis_name = 'z')   # Rotation matrix
-	p2   = np.array([[L1],[0.0], [0.0]])           # Frame's origin (w.r.t. previous frame)
-	t_12 = p2                                      # Translation vector
-	
-	# Matrix of Frame 2 w.r.t. Frame 1 
-	T_12 = getLocalFrameMatrix(R_12, t_12)
-	
-	# Matrix of Frame 2 w.r.t. Frame 0 (i.e., the world frame)
-	T_02 = T_01 @ T_12
-	
-	# Create the coordinate frame mesh and transform
-	Frame2Arrows = createCoordinateFrameMesh()
-	
-	# Now, let's create a cylinder and add it to the local coordinate frame
-	link2_mesh = Cylinder(r=0.4, 
-	                      height=L2, 
-	                      pos = (L2/2,0,0),
-	                      c="red", 
-	                      alpha=.8, 
-	                      axis=(1,0,0)
-	                      )
-	
-	# Combine all parts into a single object 
-	Frame2 = Frame2Arrows + link2_mesh
-	
-	# Transform the part to position it at its correct location and orientation 
-	Frame2.apply_transform(T_02)  
-	
-	
-	# Matrix of Frame 3 (written w.r.t. Frame 2, which is the previous frame) 	
-	R_23 = RotationMatrix(phi3, axis_name = 'z')   # Rotation matrix
-	p3   = np.array([[L2],[0.0], [0.0]])           # Frame's origin (w.r.t. previous frame)
-	t_23 = p3                                      # Translation vector
-	
-	# Matrix of Frame 3 w.r.t. Frame 2 
-	T_23 = getLocalFrameMatrix(R_23, t_23)
-	
-	# Matrix of Frame 3 w.r.t. Frame 0 (i.e., the world frame)
-	T_03 = T_01 @ T_12 @ T_23
-	
-	# Create the coordinate frame mesh and transform. This point is the end-effector. So, I am 
-	# just creating the coordinate frame. 
-	Frame3 = createCoordinateFrameMesh()
-
-	# Transform the part to position it at its correct location and orientation 
-	Frame3.apply_transform(T_03)  
-
-	# Show everything 
-	show([Frame1, Frame2, Frame3], axes, viewup="z").close()
+    # Visualize
+    show([axes], viewup="z").close()
 	
 
 if __name__ == '__main__':
