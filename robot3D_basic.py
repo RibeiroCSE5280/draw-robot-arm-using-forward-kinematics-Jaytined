@@ -143,7 +143,7 @@ def forward_kinematics(Phi, L1, L2, L3, L4):
 
     # Matrix of Frame 4
     R_34 = RotationMatrix(phi4, axis_name='z')
-    t_34 = np.array([[L3+2*radius], [0.0], [0.0]]) 
+    t_34 = np.array([[L3+radius], [0.0], [0.0]]) 
 
     T_34 = getLocalFrameMatrix(R_34, t_34)
 
