@@ -103,7 +103,55 @@ def getLocalFrameMatrix(R_ij, t_ij):
                      [np.zeros((1, 3)),       1]])
     
     return T_ij
-	
+
+
+def forward_kinematics(Phi, L1, L2, L3, L4):
+    arm_location = np.array([[3], [2], [0.0]])
+    radius = 0.4
+
+    # First joint angle
+    phi1 = Phi[0]
+
+    # Matrix of Frame 1
+    R_01 = RotationMatrix(phi1, axis_name='z')
+    t_01 = arm_location
+    T_01 = getLocalFrameMatrix(R_01, t_01)
+
+    # Second joint angle
+    phi2 = Phi[1]
+
+    # Matrix of Frame 2
+    R_12 = RotationMatrix(phi2, axis_name='z')
+    # Origin of the Frame
+    t_12 = np.array([[L1+2*radius], [0.0], [0.0]]) 
+    T_12 = getLocalFrameMatrix(R_12, t_12)
+
+    T_02 = T_01 @ T_12
+
+    # Third joint angle
+    phi3 = Phi[2]
+
+    # Matrix of Frame 3
+    R_23 = RotationMatrix(phi3, axis_name='z')
+    t_23 = np.array([[L2+2*radius], [0.0], [0.0]]) # Frame's origin
+    T_23 = getLocalFrameMatrix(R_23, t_23)
+
+    T_03 = T_01 @ T_12 @ T_23
+
+    # Fourth joint angle
+    phi4 = Phi[3]
+
+    # Matrix of Frame 4
+    R_34 = RotationMatrix(phi4, axis_name='z')
+    t_34 = np.array([[L3+2*radius], [0.0], [0.0]]) 
+
+    T_34 = getLocalFrameMatrix(R_34, t_34)
+
+    T_04 = T_01 @ T_12 @ T_23 @ T_34
+
+    e = T_04[0:3,-1]
+
+    return T_01, T_02, T_03, T_04, e
 
 def main():
 
@@ -147,11 +195,6 @@ def main():
 
 	# Transform the part to position it at its correct location and orientation 
 	Frame1.apply_transform(T_01)  
-	
-
-
-
-
 
 	
 	# Matrix of Frame 2 (written w.r.t. Frame 1, which is the previous frame) 	
@@ -184,9 +227,6 @@ def main():
 	Frame2.apply_transform(T_02)  
 	
 	
-
-	
-	
 	# Matrix of Frame 3 (written w.r.t. Frame 2, which is the previous frame) 	
 	R_23 = RotationMatrix(phi3, axis_name = 'z')   # Rotation matrix
 	p3   = np.array([[L2],[0.0], [0.0]])           # Frame's origin (w.r.t. previous frame)
@@ -209,10 +249,6 @@ def main():
 	show([Frame1, Frame2, Frame3], axes, viewup="z").close()
 	
 
-
-
 if __name__ == '__main__':
     main()
-
-
 
