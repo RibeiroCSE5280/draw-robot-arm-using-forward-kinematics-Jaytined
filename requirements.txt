@@ -5,6 +5,6 @@ importnb
 cvxopt
 matplotlib
 vedo
-
+numpy
 
 
